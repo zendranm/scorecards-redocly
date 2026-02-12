@@ -16,6 +16,8 @@ export const fetchDeployments = async (
   owner: string,
   repo: string
 ): Promise<DeploymentEvent[]> => {
+  // TODO: Github token should be configured together with the owner and repo
+  // TODO: Add a check to see if the github token, the owner and repo are valid
   const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
   const { data } = await octokit.rest.actions.listWorkflowRunsForRepo({
