@@ -1,0 +1,22 @@
+name: Dummy Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      outcome:
+        description: "success or fail"
+        required: true
+        default: "success"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pretend deploy
+        run: |
+          echo "Deploying..."
+          if [ "${{ github.event.inputs.outcome }}" = "fail" ]; then
+            echo "Failing on purpose"
+            exit 1
+          fi
+          echo "Success"
