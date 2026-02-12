@@ -1,3 +1,5 @@
+# Add JSON schema to describe YAML structure
+
 name: Production Deployment Quality
 repository: zendranm/scorecards-redocly
 timeWindow:

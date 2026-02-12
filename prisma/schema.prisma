@@ -10,13 +10,27 @@ datasource db {
 }
 
 model Scorecard {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  repository  String
-  timeWindow  Json
-  rules       Json
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  repository String
+  timeWindow Json
+  rules      Json
+
+  results ScorecardResult[]
 
   @@map("scorecards")
+}
+
+model ScorecardResult {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  scorecard       Scorecard @relation(fields: [scorecardId], references: [id])
+  scorecardId     String    @db.ObjectId
+  passed          Boolean
+  ruleResults     Json
+  calculatedAt    DateTime  @default(now()) @map("calculated_at")
+  deploymentCount Int       @map("deployment_count")
+
+  @@map("scorecard_results")
 }
