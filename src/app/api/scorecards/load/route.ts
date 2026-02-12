@@ -3,6 +3,7 @@ import { loadScorecards } from "@/lib/yamlParser";
 import { prisma } from "@/lib/prisma";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 
+// TODO: Extract logic responsible for comparing YAML scorecards with the ones in the database
 export const POST = async () => {
   try {
     const yamlScorecards = loadScorecards();
@@ -34,6 +35,7 @@ export const POST = async () => {
               baseName,
               name: activeScorecard.name,
               version: parseInt(
+                // TODO: Refactor for readability
                 activeScorecard.name.match(/v(\d+)$/)?.[1] || "1"
               ),
               id: activeScorecard.id,
@@ -54,6 +56,7 @@ export const POST = async () => {
             data: { active: false },
           });
 
+          // TODO: Refactor for readability
           const lastVersion = existingScorecards[0].name.match(/v(\d+)$/);
           version = lastVersion
             ? parseInt(lastVersion[1]) + 1

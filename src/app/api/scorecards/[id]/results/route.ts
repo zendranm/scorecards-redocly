@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import dayjs from "dayjs";
 import { TimeWindow } from "@/types/scorecard";
 
+// TODO: Depending on business logic, consider throwing an error if the scorecard has no fresh results
 export const GET = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
