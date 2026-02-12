@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Deployment Scorecards
 
-## Getting Started
+Evaluate GitHub Actions deployment quality using configurable YAML-based scorecards.
 
-First, run the development server:
+## Goal
+
+Track deployment health by defining rules (e.g., minimum successful deployments, maximum failures) and evaluating them against GitHub workflow runs within configurable time windows.
+
+## Tech Stack
+
+- **Next.js 16** - Full-stack React framework
+- **TypeScript** - Type safety
+- **MongoDB (Prisma)** - Database for scorecards and results
+- **Octokit** - GitHub API client
+- **Tailwind CSS** - Styling
+
+## Quick Start
+
+### 1. Start MongoDB
+
+```bash
+docker compose up -d
+```
+
+Wait 10 seconds for replica set initialization.
+
+### 2. Setup Environment
+
+```bash
+cp .env.example .env.local
+```
+
+Add your GitHub token to `.env.local`:
+
+```
+GITHUB_TOKEN=ghp_yourTokenHere
+```
+
+Get a token at: https://github.com/settings/tokens (needs `public_repo` scope)
+
+### 3. Install Dependencies
+
+```bash
+npm install
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Load Scorecards** - Load YAML definitions into database:
 
-## Learn More
+   ```bash
+   curl -X POST http://localhost:3000/api/scorecards/load
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **View UI** - Open http://localhost:3000
+   - Select a scorecard from dropdown
+   - Click "View Results" to see latest stored results
+   - Click "Calculate New" to fetch fresh data from GitHub
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API Endpoints
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `POST /api/scorecards/load` - Load scorecards from YAML
+- `GET /api/scorecards` - List active scorecards
+- `GET /api/github/deployments` - Fetch deployments from GitHub
+- `POST /api/scorecards/calculate` - Calculate scorecard results
+- `GET /api/scorecards/:id/results` - Get latest results for scorecard
 
-## Deploy on Vercel
+## Scorecard Definition
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Edit `scorecards/scorecards.yaml` to define your scorecards:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```yaml
+scorecards:
+  - name: Production Quality
+    repository: owner/repo
+    timeWindow:
+      durationHours: 24
+      type: rolling
+    rules:
+      - id: min-deployments
+        type: min_successful
+        threshold: 3
+        description: At least 3 successful deployments
+```
+
+## Stopping
+
+```bash
+docker compose down
+```
