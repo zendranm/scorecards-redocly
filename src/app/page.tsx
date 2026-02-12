@@ -56,9 +56,11 @@ export default function Home() {
       if (data.success) {
         setResult(data.data);
       } else {
+        setResult(null);
         setError("No results found for this scorecard");
       }
     } catch (err) {
+      setResult(null);
       setError("Failed to load results");
     } finally {
       setLoading(false);
@@ -74,6 +76,7 @@ export default function Home() {
     const selectedScorecard = scorecards.find((s) => s.id === selectedId);
 
     if (!selectedScorecard?.active) {
+      setResult(null);
       setError("Cannot calculate new results for inactive scorecard versions");
       setCalculating(false);
       return;
@@ -91,11 +94,16 @@ export default function Home() {
         );
         if (matchingResult) {
           setResult(matchingResult);
+        } else {
+          setResult(null);
+          setError("No results found for this scorecard");
         }
       } else {
+        setResult(null);
         setError(data.error || "Failed to calculate");
       }
     } catch (err) {
+      setResult(null);
       setError("Failed to calculate results");
     } finally {
       setCalculating(false);
