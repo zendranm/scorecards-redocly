@@ -5,6 +5,7 @@ import { calculateScorecard } from "@/lib/scorecardCalculator";
 import { Rule, Scorecard, TimeWindow } from "@/types/scorecard";
 import { InputJsonValue } from "@prisma/client/runtime/library";
 
+// TODO: Scorecard calculation should be triggered by a webhook from GitHub or by a Cron job
 export const POST = async () => {
   try {
     const scorecards = await prisma.scorecard.findMany({

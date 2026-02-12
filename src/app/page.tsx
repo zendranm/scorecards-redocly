@@ -13,6 +13,9 @@ interface Scorecard {
   active: boolean;
 }
 
+// TODO: This page should be thoroughly refactored to be more modular
+// TODO: Add historical results tracking
+
 export default function Home() {
   const [scorecards, setScorecards] = useState<Scorecard[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
