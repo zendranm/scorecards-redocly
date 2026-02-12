@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import dayjs from "dayjs";
+import { TimeWindow } from "@/types/scorecard";
 
 export const GET = async (
   request: NextRequest,
@@ -23,12 +25,29 @@ export const GET = async (
       );
     }
 
+    const timeWindow = latestResult.scorecard
+      .timeWindow as unknown as TimeWindow;
+    const calculatedAt = dayjs(latestResult.calculatedAt);
+
+    let start: string;
+    let end: string;
+
+    if (timeWindow.type === "rolling") {
+      start = calculatedAt
+        .subtract(timeWindow.durationHours, "hour")
+        .toISOString();
+      end = calculatedAt.toISOString();
+    } else {
+      start = calculatedAt.startOf("day").toISOString();
+      end = calculatedAt.toISOString();
+    }
+
     const result = {
       scorecardName: latestResult.scorecard.name,
       repository: latestResult.scorecard.repository,
       timeWindow: {
-        start: new Date().toISOString(),
-        end: new Date().toISOString(),
+        start,
+        end,
       },
       passed: latestResult.passed,
       ruleResults: latestResult.ruleResults,

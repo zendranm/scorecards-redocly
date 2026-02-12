@@ -31,14 +31,16 @@ export const ScorecardResult = ({ result }: ScorecardResultProps) => {
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <p className="text-sm text-gray-600">Time Window</p>
-            <p className="text-sm font-medium">
+            <p className="text-sm font-medium text-gray-600">
               {new Date(result.timeWindow.start).toLocaleDateString()} -{" "}
               {new Date(result.timeWindow.end).toLocaleDateString()}
             </p>
           </div>
           <div>
             <p className="text-sm text-gray-600">Deployments</p>
-            <p className="text-sm font-medium">{result.deploymentCount}</p>
+            <p className="text-sm font-medium text-gray-600">
+              {result.deploymentCount}
+            </p>
           </div>
         </div>
       </div>

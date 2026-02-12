@@ -18,6 +18,7 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [result, setResult] = useState<ScorecardResultType | null>(null);
   const [calculating, setCalculating] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showInactive, setShowInactive] = useState(false);
 
@@ -43,6 +44,27 @@ export default function Home() {
     }
   };
 
+  const viewResults = async () => {
+    if (!selectedId) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/scorecards/${selectedId}/results`);
+      const data = await res.json();
+      if (data.success) {
+        setResult(data.data);
+      } else {
+        setError("No results found for this scorecard");
+      }
+    } catch (err) {
+      setError("Failed to load results");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const calculateResults = async () => {
     if (!selectedId) return;
 
@@ -52,19 +74,8 @@ export default function Home() {
     const selectedScorecard = scorecards.find((s) => s.id === selectedId);
 
     if (!selectedScorecard?.active) {
-      try {
-        const res = await fetch(`/api/scorecards/${selectedId}/results`);
-        const data = await res.json();
-        if (data.success) {
-          setResult(data.data);
-        } else {
-          setError("No results found for this scorecard version");
-        }
-      } catch (err) {
-        setError("Failed to load results for inactive scorecard");
-      } finally {
-        setCalculating(false);
-      }
+      setError("Cannot calculate new results for inactive scorecard versions");
+      setCalculating(false);
       return;
     }
 
@@ -110,11 +121,18 @@ export default function Home() {
               />
             </div>
             <button
+              onClick={viewResults}
+              disabled={!selectedId || loading || calculating}
+              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {loading ? "Loading..." : "View Results"}
+            </button>
+            <button
               onClick={calculateResults}
-              disabled={!selectedId || calculating}
+              disabled={!selectedId || calculating || loading}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
-              {calculating ? "Calculating..." : "Calculate Results"}
+              {calculating ? "Calculating..." : "Calculate New"}
             </button>
           </div>
 
@@ -133,7 +151,10 @@ export default function Home() {
 
         {!result && !error && (
           <div className="bg-white rounded-lg shadow-md p-8 text-center text-gray-500">
-            <p>Select a scorecard and click Calculate Results to see data</p>
+            <p>Select a scorecard and click View Results to see latest data</p>
+            <p className="text-sm mt-2">
+              or Calculate New to generate fresh results
+            </p>
           </div>
         )}
       </div>
