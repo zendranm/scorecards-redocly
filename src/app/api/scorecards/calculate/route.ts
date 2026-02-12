@@ -1,24 +1,46 @@
 import { NextResponse } from "next/server";
-import { loadScorecards } from "@/lib/yamlParser";
+import { prisma } from "@/lib/prisma";
 import { fetchDeployments } from "@/lib/fetchDeployments";
 import { calculateScorecard } from "@/lib/scorecardCalculator";
+import { Rule, Scorecard, TimeWindow } from "@/types/scorecard";
+import { InputJsonValue } from "@prisma/client/runtime/library";
 
 export const POST = async () => {
   try {
-    const scorecards = loadScorecards();
+    const scorecards = await prisma.scorecard.findMany({
+      where: { active: true },
+    });
 
     if (scorecards.length === 0) {
       return NextResponse.json(
-        { success: false, error: "No scorecards found" },
+        { success: false, error: "No active scorecards found" },
         { status: 404 }
       );
     }
 
     const results = await Promise.all(
-      scorecards.map(async (scorecard) => {
+      scorecards.map(async (dbScorecard) => {
+        const scorecard: Scorecard = {
+          name: dbScorecard.name,
+          repository: dbScorecard.repository,
+          timeWindow: dbScorecard.timeWindow as unknown as TimeWindow,
+          rules: dbScorecard.rules as unknown as Rule[],
+        };
+
         const [owner, repo] = scorecard.repository.split("/");
         const deployments = await fetchDeployments(owner, repo);
-        return calculateScorecard(scorecard, deployments);
+        const result = calculateScorecard(scorecard, deployments);
+
+        await prisma.scorecardResult.create({
+          data: {
+            scorecardId: dbScorecard.id,
+            passed: result.passed,
+            ruleResults: result.ruleResults as unknown as InputJsonValue,
+            deploymentCount: result.deploymentCount,
+          },
+        });
+
+        return result;
       })
     );
 

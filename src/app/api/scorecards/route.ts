@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
-import { loadScorecards } from "@/lib/yamlParser";
+import { prisma } from "@/lib/prisma";
 
 export const GET = async () => {
   try {
-    const scorecards = loadScorecards();
+    const scorecards = await prisma.scorecard.findMany({
+      where: { active: true },
+      orderBy: { createdAt: "desc" },
+    });
 
     return NextResponse.json({
       success: true,
