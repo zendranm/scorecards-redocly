@@ -7,7 +7,7 @@ export const calculateTimeWindow = (
   const end = new Date();
 
   if (timeWindow.type === "rolling") {
-    const start = dayjs().subtract(timeWindow.duration, "day").toDate();
+    const start = dayjs().subtract(timeWindow.durationHours, "hour").toDate();
     return { start, end };
   }
 

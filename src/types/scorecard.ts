@@ -6,7 +6,7 @@ export interface Rule {
 }
 
 export interface TimeWindow {
-  duration: number;
+  durationHours: number;
   type: "rolling" | "fixed";
 }
 

@@ -1,0 +1,35 @@
+# TODO: Add JSON schema to describe YAML structure
+scorecards:
+  - name: Production Deployment Quality
+    repository: zendranm/scorecards-redocly
+    timeWindow:
+      durationHours: 3
+      type: rolling
+
+    rules:
+      - id: min-deployments
+        type: min_successful
+        threshold: 3
+        description: At least 3 successful deployments per day
+
+      - id: max-failures
+        type: max_failed
+        threshold: 1
+        description: At most 1 failed deployment per day
+
+  - name: Staging Environment Health
+    repository: zendranm/scorecards-redocly
+    timeWindow:
+      durationHours: 8
+      type: rolling
+
+    rules:
+      - id: min-staging-deployments
+        type: min_successful
+        threshold: 5
+        description: At least 5 successful deployments in 48h
+
+      - id: max-staging-failures
+        type: max_failed
+        threshold: 2
+        description: At most 2 failed deployments in 48h

@@ -12,7 +12,7 @@ const RuleSchema = z.object({
 });
 
 const TimeWindowSchema = z.object({
-  duration: z.number(),
+  durationHours: z.number(),
   type: z.enum(["rolling", "fixed"]),
 });
 
@@ -23,9 +23,14 @@ const ScorecardSchema = z.object({
   rules: z.array(RuleSchema),
 });
 
-export const parseScorecard = (yamlContent: string): Scorecard => {
+const ScorecardsFileSchema = z.object({
+  scorecards: z.array(ScorecardSchema),
+});
+
+export const parseScorecards = (yamlContent: string): Scorecard[] => {
   const parsed = yaml.load(yamlContent);
-  return ScorecardSchema.parse(parsed);
+  const validated = ScorecardsFileSchema.parse(parsed);
+  return validated.scorecards;
 };
 
 export const loadScorecards = (): Scorecard[] => {
@@ -36,10 +41,15 @@ export const loadScorecards = (): Scorecard[] => {
       (file) => file.endsWith(".yaml") || file.endsWith(".yml")
     );
 
-    return files.map((file) => {
+    const allScorecards: Scorecard[] = [];
+
+    for (const file of files) {
       const content = readFileSync(join(scorecardDir, file), "utf-8");
-      return parseScorecard(content);
-    });
+      const scorecards = parseScorecards(content);
+      allScorecards.push(...scorecards);
+    }
+
+    return allScorecards;
   } catch (error) {
     return [];
   }
