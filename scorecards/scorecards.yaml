@@ -33,3 +33,20 @@ scorecards:
         type: max_failed
         threshold: 2
         description: At most 2 failed deployments in 48h
+
+  - name: Hourly check
+    repository: zendranm/scorecards-redocly
+    timeWindow:
+      durationHours: 1
+      type: rolling
+
+    rules:
+      - id: min-staging-deployments
+        type: min_successful
+        threshold: 2
+        description: At least 2 successful deployments in last hour
+
+      - id: max-staging-failures
+        type: max_failed
+        threshold: 1
+        description: At most 1 failed deployments in last hour
