@@ -6,7 +6,20 @@ interface ScorecardResultProps {
   result: ScorecardResultType;
 }
 
+const formatDateTime = (date: Date) => {
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+};
+
 export const ScorecardResult = ({ result }: ScorecardResultProps) => {
+  const startDate = new Date(result.timeWindow.start);
+  const endDate = new Date(result.timeWindow.end);
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -31,9 +44,11 @@ export const ScorecardResult = ({ result }: ScorecardResultProps) => {
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <p className="text-sm text-gray-600">Time Window</p>
-            <p className="text-sm font-medium text-gray-600">
-              {new Date(result.timeWindow.start).toLocaleDateString()} -{" "}
-              {new Date(result.timeWindow.end).toLocaleDateString()}
+            <p className="text-sm font-medium text-gray-900">
+              {formatDateTime(startDate)}
+            </p>
+            <p className="text-sm font-medium text-gray-900">
+              to {formatDateTime(endDate)}
             </p>
           </div>
           <div>
