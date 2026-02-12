@@ -14,5 +14,5 @@ rules:
 
   - id: max-failures
     type: max_failed
-    threshold: 1
+    threshold: 2
     description: At most 1 failed deployment per day

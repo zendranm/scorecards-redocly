@@ -17,6 +17,31 @@ export const POST = async () => {
       yamlScorecards.map(async (scorecard) => {
         const baseName = scorecard.name;
 
+        const activeScorecard = await prisma.scorecard.findFirst({
+          where: { baseName, active: true },
+        });
+
+        if (activeScorecard) {
+          const areRulesChanged =
+            JSON.stringify(activeScorecard.rules) !==
+            JSON.stringify(scorecard.rules);
+          const isTimeWindowChanged =
+            JSON.stringify(activeScorecard.timeWindow) !==
+            JSON.stringify(scorecard.timeWindow);
+
+          if (!areRulesChanged && !isTimeWindowChanged) {
+            return {
+              baseName,
+              name: activeScorecard.name,
+              version: parseInt(
+                activeScorecard.name.match(/v(\d+)$/)?.[1] || "1"
+              ),
+              id: activeScorecard.id,
+              changed: false,
+            };
+          }
+        }
+
         const existingScorecards = await prisma.scorecard.findMany({
           where: { baseName },
           orderBy: { createdAt: "desc" },
@@ -53,6 +78,7 @@ export const POST = async () => {
           name: versionedName,
           version,
           id: created.id,
+          changed: true,
         };
       })
     );
